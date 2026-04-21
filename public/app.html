@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>שבית - בתי חברות לסופ"ש</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --cream: #FDF6EC;
+  --cream-light: #FFFBF3;
+  --cream-dark: #F5EAD2;
+  --sage: #6FAB5F;
+  --sage-dark: #4C8A3E;
+  --sage-light: #D1EBC5;
+  --terracotta: #E87A4F;
+  --terracotta-light: #FBD4BF;
+  --warm-gray: #A8A196;
+  --warm-gray-light: #E5DFD2;
+  --ink: #2D2A24;
+  --ink-soft: #4A463D;
+  --muted: #8B8578;
+  --white: #FFFFFF;
+  --sky: #5BA8D6;
+  --sky-light: #C9E5F5;
+  --sunshine: #F4C14E;
+  --sunshine-light: #FDEDC4;
+  --coral: #E96B8B;
+  --coral-light: #FBD2DC;
+  --lavender: #9B7EBD;
+  --lavender-light: #E2D5F0;
+  --mint: #4FC3A1;
+  --mint-light: #C8EDDD;
+  --shadow-soft: 0 2px 12px rgba(45, 42, 36, 0.06);
+  --shadow-medium: 0 8px 28px rgba(45, 42, 36, 0.12);
+}
+
+body {
+  font-family: 'Assistant', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #FCE8DC 0%, #F5E6F1 50%, #E0F0F5 100%);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  padding: 0;
+}
+
+.app {
+  max-width: 440px;
+  margin: 0 auto;
+  background: var(--cream);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(0,0,0,0.1);
+}
+
+.header {
+  padding: 20px 20px 14px;
+  background: linear-gradient(135deg, var(--cream) 0%, #FFE8D5 100%);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(168, 161, 150, 0.15);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-wrap { display: flex; align-items: center; gap: 10px; }
+
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); font-size: 22px; font-weight: 700;
+  font-family: 'Frank Ruhl Libre', serif;
+  box-shadow: 0 4px 12px rgba(111, 171, 95, 0.4);
+  transform: rotate(-5deg);
+}
+
+.logo {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 26px; font-weight: 500; color: var(--ink);
+}
+
+.user-badge { display: flex; align-items: center; gap: 10px; }
+
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--coral) 0%, var(--terracotta) 100%);
+  color: var(--white); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  box-shadow: 0 3px 10px rgba(233, 107, 139, 0.35);
+  border: 2px solid var(--white);
+  cursor: pointer;
+}
+
+.greeting { font-size: 13px; color: var(--muted); }
+.greeting strong { color: var(--ink); font-weight: 600; }
+
+.weekend-banner {
+  margin: 14px 20px 0;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #FFF1C2 0%, #FFD4E5 50%, #C9E5F5 100%);
+  border-radius: 18px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 4px 16px rgba(244, 193, 78, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.weekend-banner-icon { font-size: 26px; }
+.weekend-banner-text { font-size: 13px; color: #8B5A2B; font-weight: 600; line-height: 1.4; }
+.weekend-banner-text strong { font-weight: 800; color: var(--ink); }
+
+.section { padding: 22px 20px 0; }
+.section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.section-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 500; color: var(--ink); }
+.section-subtitle { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+.my-houses { display: flex; flex-direction: column; gap: 12px; }
+
+.my-house-card {
+  background: var(--white); border-radius: 18px; padding: 14px;
+  box-shadow: var(--shadow-soft); display: flex; gap: 14px; align-items: center;
+  border: 1px solid rgba(168, 161, 150, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.my-house-card.available {
+  background: linear-gradient(135deg, #F1F6EC 0%, #E5EFDD 100%);
+  border-color: var(--sage);
+}
+
+.my-house-thumb {
+  width: 68px; height: 68px; border-radius: 14px;
+  background-size: cover; background-position: center; flex-shrink: 0;
+  border: 2px solid var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
+  background-color: var(--cream-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+
+.my-house-card.available .my-house-thumb::after {
+  content: ''; position: absolute; top: -4px; right: -4px;
+  width: 14px; height: 14px; background: var(--sage);
+  border: 2px solid var(--white); border-radius: 50%;
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(111, 171, 95, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(111, 171, 95, 0); }
+}
+
+.my-house-info { flex: 1; min-width: 0; }
+.my-house-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.my-house-meta { font-size: 12px; color: var(--muted); }
+
+.toggle-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+.toggle {
+  position: relative; width: 54px; height: 30px;
+  background: var(--warm-gray-light); border-radius: 100px;
+  cursor: pointer; transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0;
+}
+
+.toggle::after {
+  content: ''; position: absolute; top: 3px; right: 3px;
+  width: 24px; height: 24px; background: var(--white); border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle.on { background: var(--sage); }
+.toggle.on::after { right: 27px; }
+
+.toggle-label { font-size: 10px; color: var(--muted); font-weight: 700; }
+.toggle.on ~ .toggle-label { color: var(--sage-dark); }
+
+.filter-row {
+  display: flex; gap: 8px; overflow-x: auto; padding: 0 20px; margin-top: 12px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+
+.filter-pill {
+  padding: 9px 14px; border-radius: 100px; background: var(--white);
+  border: 1.5px solid rgba(168, 161, 150, 0.25); font-size: 13px; font-weight: 600;
+  color: var(--ink-soft); white-space: nowrap; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; transition: all 0.2s; flex-shrink: 0;
+}
+
+.filter-pill:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+.filter-pill.active { background: var(--ink); color: var(--cream-light); border-color: var(--ink); }
+
+.filter-pill.green-only.active {
+  background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%);
+  color: var(--white); border-color: var(--sage);
+  box-shadow: 0 3px 10px rgba(111, 171, 95, 0.35);
+}
+
+.filter-pill[data-filter="kids"].active { background: linear-gradient(135deg, var(--coral) 0%, #F08CA4 100%); color: var(--white); border-color: var(--coral); }
+.filter-pill[data-filter="garden"].active { background: linear-gradient(135deg, var(--mint) 0%, var(--sage) 100%); color: var(--white); border-color: var(--mint); }
+.filter-pill[data-filter="nostairs"].active { background: linear-gradient(135deg, var(--sky) 0%, #7AB8DD 100%); color: var(--white); border-color: var(--sky); }
+.filter-pill[data-filter="crib"].active { background: linear-gradient(135deg, var(--sunshine) 0%, #F5D379 100%); color: #7A5A1A; border-color: var(--sunshine); }
+.filter-pill[data-filter="mamad"].active { background: linear-gradient(135deg, var(--lavender) 0%, #B19BD1 100%); color: var(--white); border-color: var(--lavender); }
+
+.map-wrap {
+  margin: 14px 20px 20px; background: #E4EDF0; border-radius: 20px;
+  overflow: hidden; position: relative; height: 460px;
+  box-shadow: var(--shadow-medium); border: 1px solid rgba(168, 161, 150, 0.15);
+}
+
+#leafletMap { width: 100%; height: 100%; border-radius: 20px; z-index: 1; background: #F5EFDF; }
+
+.leaflet-marker-pin { width: 32px; height: 32px; position: relative; cursor: pointer; }
+.leaflet-marker-pin .pin-dot {
+  width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
+  background: var(--warm-gray); transform: rotate(-45deg);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35); border: 2.5px solid var(--white);
+  position: relative; transition: transform 0.2s;
+}
+.leaflet-marker-pin:hover .pin-dot { transform: rotate(-45deg) scale(1.2); }
+.leaflet-marker-pin.available .pin-dot {
+  background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%);
+  animation: pulseMap 2s ease-in-out infinite;
+}
+.leaflet-marker-pin.mine .pin-dot {
+  background: linear-gradient(135deg, var(--coral) 0%, var(--terracotta) 100%);
+}
+
+@keyframes pulseMap {
+  0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.35), 0 0 0 0 rgba(111, 171, 95, 0.6); }
+  50% { box-shadow: 0 4px 12px rgba(0,0,0,0.35), 0 0 0 12px rgba(111, 171, 95, 0); }
+}
+
+.leaflet-marker-pin .pin-dot::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 10px; height: 10px; background: var(--white); border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.leaflet-marker-icon.custom-pin-icon { background: transparent !important; border: none !important; }
+.leaflet-control-attribution { font-size: 9px !important; background: rgba(255,255,255,0.7) !important; border-radius: 4px; }
+.leaflet-control-zoom { border: none !important; box-shadow: var(--shadow-soft) !important; border-radius: 12px !important; overflow: hidden; margin: 12px !important; }
+.leaflet-control-zoom a { background: var(--white) !important; color: var(--ink) !important; border: none !important; width: 36px !important; height: 36px !important; line-height: 36px !important; font-size: 18px !important; }
+.leaflet-control-zoom a:hover { background: var(--cream-dark) !important; }
+
+.map-legend {
+  position: absolute; top: 12px; right: 12px; background: var(--white);
+  border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow-soft);
+  display: flex; flex-direction: column; gap: 6px; font-size: 11px; z-index: 3;
+}
+.legend-item { display: flex; align-items: center; gap: 7px; color: var(--ink-soft); font-weight: 500; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--white); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.legend-dot.available { background: var(--sage); }
+.legend-dot.not-available { background: var(--warm-gray); }
+.legend-dot.mine { background: var(--terracotta); }
+
+.map-count {
+  position: absolute; bottom: 12px; right: 12px;
+  background: rgba(45, 42, 36, 0.92); color: var(--cream-light);
+  padding: 8px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; z-index: 3;
+}
+.map-count strong { color: var(--sage-light); }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(45, 42, 36, 0.5);
+  backdrop-filter: blur(6px); z-index: 1000; display: none;
+  align-items: flex-end; justify-content: center; animation: fadeIn 0.3s;
+}
+.modal-backdrop.open { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal {
+  background: var(--cream-light); width: 100%; max-width: 440px;
+  max-height: 92vh; border-radius: 28px 28px 0 0; overflow-y: auto;
+  animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.modal-handle { width: 40px; height: 4px; background: var(--warm-gray-light); border-radius: 2px; margin: 12px auto 0; }
+
+.modal-photos {
+  display: flex; gap: 8px; padding: 16px 16px 12px;
+  overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory;
+}
+.modal-photos::-webkit-scrollbar { display: none; }
+
+.modal-photo {
+  width: 280px; height: 200px; border-radius: 18px;
+  background-size: cover; background-position: center; background-color: var(--cream-dark);
+  flex-shrink: 0; box-shadow: 0 4px 16px rgba(45, 42, 36, 0.12);
+  scroll-snap-align: start; border: 2px solid var(--white);
+  display: flex; align-items: center; justify-content: center; font-size: 48px;
+}
+
+.modal-body { padding: 0 20px 20px; }
+
+.modal-title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+.modal-title { font-family: 'Frank Ruhl Libre', serif; font-size: 26px; font-weight: 500; color: var(--ink); line-height: 1.1; }
+
+.status-badge { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; margin-top: 4px; }
+.status-badge.available { background: var(--sage-light); color: var(--sage-dark); }
+.status-badge.not-available { background: var(--warm-gray-light); color: var(--ink-soft); }
+
+.modal-host { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+.modal-host strong { color: var(--ink-soft); font-weight: 600; }
+
+.modal-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+
+.feature {
+  background: var(--white); padding: 12px 14px; border-radius: 14px;
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid rgba(168, 161, 150, 0.12);
+}
+
+.feature-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+
+.feature:nth-child(1) .feature-icon { background: var(--sky-light); }
+.feature:nth-child(2) .feature-icon { background: var(--coral-light); }
+.feature:nth-child(3) .feature-icon { background: var(--mint-light); }
+.feature:nth-child(4) .feature-icon { background: var(--sunshine-light); }
+.feature:nth-child(5) .feature-icon { background: var(--lavender-light); }
+.feature:nth-child(6) .feature-icon { background: var(--terracotta-light); }
+
+.feature-text { font-size: 12px; color: var(--ink-soft); line-height: 1.3; }
+.feature-text strong { display: block; font-size: 14px; color: var(--ink); font-weight: 700; }
+
+.modal-note {
+  background: var(--cream-dark); padding: 14px 16px; border-radius: 14px;
+  font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.5;
+  border-right: 3px solid var(--terracotta);
+}
+.modal-note strong { color: var(--ink); }
+
+.hidden-details {
+  background: var(--white); padding: 14px 16px; border-radius: 14px;
+  margin-bottom: 20px; display: flex; gap: 10px; align-items: center;
+  border: 1px dashed var(--warm-gray);
+}
+.hidden-details-icon { font-size: 18px; }
+.hidden-details-text { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+.revealed-details {
+  background: linear-gradient(135deg, #F1F6EC 0%, #E5EFDD 100%);
+  padding: 16px; border-radius: 14px; margin-bottom: 20px; border: 1px solid var(--sage);
+}
+.revealed-details-title { font-size: 12px; font-weight: 700; color: var(--sage-dark); margin-bottom: 10px; }
+.revealed-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed rgba(92,122,83,0.3); }
+.revealed-item:last-child { border: none; }
+.revealed-item-label { color: var(--muted); }
+.revealed-item-value { color: var(--ink); font-weight: 600; }
+
+.btn {
+  width: 100%; padding: 16px; border-radius: 16px; border: none;
+  font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary { background: var(--ink); color: var(--cream-light); }
+.btn-primary:hover { background: var(--ink-soft); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary.disabled { background: var(--warm-gray-light); color: var(--muted); cursor: not-allowed; }
+
+.sent-overlay {
+  position: fixed; inset: 0; background: rgba(45, 42, 36, 0.6);
+  backdrop-filter: blur(8px); z-index: 2000; display: none;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.sent-overlay.open { display: flex; }
+
+.sent-box {
+  background: var(--cream-light); max-width: 360px; width: 100%;
+  border-radius: 24px; padding: 28px 22px; text-align: center;
+  animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sent-check {
+  width: 58px; height: 58px; margin: 0 auto 14px;
+  background: var(--sage); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); font-size: 30px;
+}
+
+.sent-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 500; margin-bottom: 6px; color: var(--ink); }
+.sent-text { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+
+.whatsapp-preview {
+  background: #E5F1E2; border-right: 4px solid #25D366;
+  padding: 12px 14px; border-radius: 12px; text-align: right;
+  margin-bottom: 18px; font-size: 13px; color: #1A3319; line-height: 1.5;
+}
+.whatsapp-preview-header { font-size: 10px; color: #25D366; font-weight: 700; margin-bottom: 4px; }
+
+.bottom-nav {
+  position: sticky; bottom: 0;
+  background: linear-gradient(180deg, var(--cream-light) 0%, #FFF5E4 100%);
+  border-top: 1px solid rgba(168, 161, 150, 0.2);
+  padding: 12px 20px; display: flex; justify-content: space-around; z-index: 50;
+}
+
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 4px 8px; cursor: pointer; color: var(--muted); transition: all 0.2s;
+  border: none; background: transparent; font-family: inherit; border-radius: 12px;
+}
+
+.nav-item:nth-child(1).active { color: var(--sage-dark); }
+.nav-item:nth-child(2).active { color: var(--coral); }
+.nav-item:nth-child(3).active { color: var(--sky); }
+.nav-item:nth-child(4).active { color: var(--lavender); }
+
+.nav-icon {
+  font-size: 20px; line-height: 1; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; transition: background 0.2s;
+}
+
+.nav-item:nth-child(1).active .nav-icon { background: var(--sage-light); color: var(--sage-dark); }
+.nav-item:nth-child(2).active .nav-icon { background: var(--coral-light); color: var(--coral); }
+.nav-item:nth-child(3).active .nav-icon { background: var(--sky-light); color: var(--sky); }
+.nav-item:nth-child(4).active .nav-icon { background: var(--lavender-light); color: var(--lavender); }
+
+.nav-label { font-size: 10px; font-weight: 600; }
+
+.house-list { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+
+.house-card {
+  background: var(--white); border-radius: 20px; overflow: hidden;
+  box-shadow: var(--shadow-soft); border: 1px solid rgba(168, 161, 150, 0.12);
+  cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.house-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
+.house-card.available { border-color: var(--sage); }
+
+.house-card-photo {
+  width: 100%; height: 180px; background-size: cover; background-position: center;
+  background-color: var(--cream-dark); position: relative;
+  display: flex; align-items: center; justify-content: center; font-size: 48px;
+}
+
+.house-card-photo-overlay {
+  position: absolute; top: 12px; right: 12px;
+  padding: 6px 12px; border-radius: 100px; font-size: 11px; font-weight: 700;
+  background: var(--white); box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 5px;
+}
+.house-card-photo-overlay.available { background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%); color: var(--white); }
+.house-card-photo-overlay.not-available { background: rgba(45, 42, 36, 0.85); color: var(--white); }
+.house-card-photo-overlay.mine { background: linear-gradient(135deg, var(--coral) 0%, var(--terracotta) 100%); color: var(--white); }
+
+.dot-indicator { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+.house-card-body { padding: 14px 16px 16px; }
+.house-card-title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+.house-card-name { font-family: 'Frank Ruhl Libre', serif; font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+.house-card-location { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.house-card-features { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.feature-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: var(--cream-dark); color: var(--ink-soft);
+}
+.feature-chip.bed { background: var(--sky-light); color: #2C6A95; }
+.feature-chip.kids { background: var(--coral-light); color: #9B3D5A; }
+.feature-chip.garden { background: var(--mint-light); color: #2A7A5F; }
+.feature-chip.mamad { background: var(--lavender-light); color: #6B4F90; }
+.feature-chip.crib { background: var(--sunshine-light); color: #8A5F10; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-state-icon { font-size: 40px; margin-bottom: 8px; }
+.empty-state-title { font-family: 'Frank Ruhl Libre', serif; font-size: 18px; color: var(--ink-soft); margin-bottom: 4px; }
+.empty-state-text { font-size: 13px; }
+
+.loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-top">
+      <div class="logo-wrap">
+        <div class="logo-icon">ש</div>
+        <div class="logo">שבית</div>
+      </div>
+      <div class="user-badge">
+        <div class="greeting">שלום, <strong id="userName">...</strong></div>
+        <div class="avatar" id="userAvatar" onclick="logout()">--</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="weekend-banner">
+    <span class="weekend-banner-icon">🌿</span>
+    <div class="weekend-banner-text" id="weekendBanner">טוען...</div>
+  </div>
+
+  <section class="section" id="myHousesSection" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title">הבתים שלי</h2>
+      <span class="section-subtitle">לחצי להחליף</span>
+    </div>
+    <div class="my-houses" id="myHouses"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">מפת סופ"ש</h2>
+      <span class="section-subtitle">סינון לפי צרכים</span>
+    </div>
+  </section>
+
+  <div class="filter-row" id="filterRow">
+    <div class="filter-pill green-only active" data-filter="green"><span>●</span><span>פנויים בלבד</span></div>
+    <div class="filter-pill" data-filter="kids">משפחה עם ילדים</div>
+    <div class="filter-pill" data-filter="garden">עם גינה</div>
+    <div class="filter-pill" data-filter="nostairs">ללא מדרגות</div>
+    <div class="filter-pill" data-filter="crib">מקום ללול</div>
+    <div class="filter-pill" data-filter="mamad">עם ממ"ד</div>
+  </div>
+
+  <div class="map-wrap">
+    <div id="leafletMap"></div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot available"></div><span>פנוי</span></div>
+      <div class="legend-item"><div class="legend-dot not-available"></div><span>תפוס</span></div>
+      <div class="legend-item"><div class="legend-dot mine"></div><span>שלי</span></div>
+    </div>
+    <div class="map-count">מציגה <strong id="showingCount">0</strong> בתים</div>
+  </div>
+
+  <section class="section" style="padding-bottom: 20px;">
+    <div class="section-header">
+      <h2 class="section-title">כל הבתים</h2>
+      <span class="section-subtitle" id="listCount">0 בתים</span>
+    </div>
+    <div class="house-list" id="houseList">
+      <div class="loading">טוען בתים...</div>
+    </div>
+  </section>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active"><span class="nav-icon">◆</span><span class="nav-label">מפה</span></button>
+    <button class="nav-item"><span class="nav-icon">＋</span><span class="nav-label">הוספת בית</span></button>
+    <button class="nav-item"><span class="nav-icon">◉</span><span class="nav-label">הבקשות שלי</span></button>
+    <button class="nav-item"><span class="nav-icon">▤</span><span class="nav-label">ניהול</span></button>
+  </nav>
+</div>
+
+<!-- House Details Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-photos" id="modalPhotos"></div>
+    <div class="modal-body">
+      <div class="modal-title-row">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="status-badge" id="modalStatus"></div>
+      </div>
+      <div class="modal-host" id="modalHost"></div>
+      <div class="modal-features" id="modalFeatures"></div>
+      <div id="modalNoteWrap"></div>
+      <div id="modalRevealWrap"></div>
+      <button class="btn btn-primary" id="modalActionBtn">שליחת בקשה</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sent Confirmation -->
+<div class="sent-overlay" id="sentOverlay">
+  <div class="sent-box">
+    <div class="sent-check">✓</div>
+    <div class="sent-title">הבקשה נשלחה</div>
+    <div class="sent-text" id="sentText"></div>
+    <div class="whatsapp-preview">
+      <div class="whatsapp-preview-header">הודעת וואטסאפ שתישלח</div>
+      <div id="whatsappPreviewText"></div>
+    </div>
+    <button class="btn btn-primary" onclick="closeSent()">סגירה</button>
+  </div>
+</div>
+
+<script>
+// ==================== Auth ====================
+const token = localStorage.getItem('shabbit_token');
+const userData = JSON.parse(localStorage.getItem('shabbit_user') || '{}');
+
+if (!token) {
+  window.location.href = '/';
+}
+
+function getHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + token
+  };
+}
+
+function logout() {
+  localStorage.removeItem('shabbit_token');
+  localStorage.removeItem('shabbit_user');
+  window.location.href = '/';
+}
+
+// ==================== State ====================
+let houses = [];
+let currentHouseId = null;
+const activeFilters = new Set(['green']);
+
+// ==================== Init ====================
+async function init() {
+  // Set user info
+  document.getElementById('userName').textContent = userData.name || '...';
+  const initials = (userData.name || '??').substring(0, 2);
+  document.getElementById('userAvatar').textContent = initials;
+
+  // Set weekend banner
+  const now = new Date();
+  const friday = new Date(now);
+  friday.setDate(now.getDate() + ((5 - now.getDay() + 7) % 7));
+  const saturday = new Date(friday);
+  saturday.setDate(friday.getDate() + 1);
+  const bannerEl = document.getElementById('weekendBanner');
+
+  // Load houses
+  try {
+    const res = await fetch('/api/houses', { headers: getHeaders() });
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+    houses = await res.json();
+
+    const available = houses.filter(h => h.is_available).length;
+    bannerEl.innerHTML = `סופ"ש <strong>${friday.getDate()}-${saturday.getDate()} ל${getHebrewMonth(friday)}</strong> · ${available} בתים פנויים`;
+
+    initLeafletMap();
+    renderMyHouses();
+    renderHouseList();
+    updateCounts();
+  } catch (err) {
+    console.error('Failed to load houses:', err);
+    document.getElementById('houseList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠</div><div class="empty-state-title">שגיאה בטעינה</div></div>';
+  }
+}
+
+function getHebrewMonth(date) {
+  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  return months[date.getMonth()];
+}
+
+// ==================== Placeholder photos ====================
+const photoPool = [
+  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&auto=format&fit=crop&q=80'
+];
+
+function getHousePhotos(house) {
+  if (house.photos && house.photos.length > 0) return house.photos;
+  const start = ((house.id - 1) * 3) % photoPool.length;
+  return [photoPool[start], photoPool[(start+1)%photoPool.length], photoPool[(start+2)%photoPool.length]];
+}
+
+// ==================== My Houses ====================
+function renderMyHouses() {
+  const mine = houses.filter(h => h.is_mine);
+  if (mine.length === 0) return;
+
+  document.getElementById('myHousesSection').style.display = '';
+  const el = document.getElementById('myHouses');
+
+  el.innerHTML = mine.map(h => {
+    const photos = getHousePhotos(h);
+    const photoStyle = photos[0]?.startsWith('http') ? `background-image:url('${photos[0]}')` : '';
+    return `
+    <div class="my-house-card ${h.is_available ? 'available' : ''}" data-id="${h.id}">
+      <div class="my-house-thumb" style="${photoStyle}">${photoStyle ? '' : '🏠'}</div>
+      <div class="my-house-info">
+        <div class="my-house-name">${h.name}</div>
+        <div class="my-house-meta">${h.bedrooms} חדרים · ${h.beds} מיטות · ${h.city}</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle ${h.is_available ? 'on' : ''}" onclick="toggleAvailability(${h.id})"></div>
+        <div class="toggle-label">${h.is_available ? 'פנוי' : 'סגור'}</div>
+      </div>
+    </div>
+  `;}).join('');
+}
+
+async function toggleAvailability(id) {
+  try {
+    const res = await fetch(`/api/houses/${id}/availability`, {
+      method: 'PATCH',
+      headers: getHeaders()
+    });
+    const data = await res.json();
+    const house = houses.find(h => h.id === id);
+    if (house) house.is_available = data.is_available;
+    renderMyHouses();
+    renderPins();
+    renderHouseList();
+    updateCounts();
+  } catch (err) {
+    console.error('Toggle error:', err);
+  }
+}
+
+// ==================== Filters ====================
+function matchesFilters(h) {
+  if (activeFilters.has('green') && !h.is_available) return false;
+  if (activeFilters.has('kids') && h.max_kids < 3) return false;
+  if (activeFilters.has('garden') && !h.garden) return false;
+  if (activeFilters.has('nostairs') && h.stairs) return false;
+  if (activeFilters.has('crib') && !h.crib) return false;
+  if (activeFilters.has('mamad') && !h.mamad) return false;
+  return true;
+}
+
+// ==================== House List ====================
+function renderHouseList() {
+  const el = document.getElementById('houseList');
+  const filtered = houses.filter(matchesFilters);
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">אין בתים מתאימים</div><div class="empty-state-text">נסי להסיר כמה פילטרים</div></div>';
+    document.getElementById('listCount').textContent = '0 בתים';
+    return;
+  }
+
+  document.getElementById('listCount').textContent = filtered.length + ' בתים';
+
+  el.innerHTML = filtered.map(h => {
+    const photos = getHousePhotos(h);
+    const photoStyle = photos[0]?.startsWith('http') ? `background-image:url('${photos[0]}')` : '';
+
+    let statusLabel, statusClass;
+    if (h.is_mine) { statusLabel = '<span class="dot-indicator"></span> הבית שלי'; statusClass = 'mine'; }
+    else if (h.is_available) { statusLabel = '<span class="dot-indicator"></span> פנוי השבוע'; statusClass = 'available'; }
+    else { statusLabel = '<span class="dot-indicator"></span> לא פנוי'; statusClass = 'not-available'; }
+
+    const chips = [];
+    chips.push(`<span class="feature-chip bed">${h.bedrooms} חדרים · ${h.beds} מיטות</span>`);
+    chips.push(`<span class="feature-chip kids">עד ${h.max_kids} ילדים</span>`);
+    if (h.garden) chips.push('<span class="feature-chip garden">עם גינה</span>');
+    if (h.crib) chips.push('<span class="feature-chip crib">מקום ללול</span>');
+    if (h.mamad) chips.push('<span class="feature-chip mamad">ממ"ד</span>');
+
+    return `
+      <div class="house-card ${h.is_available ? 'available' : ''}" onclick="openHouse(${h.id})">
+        <div class="house-card-photo" style="${photoStyle}">${photoStyle ? '' : '🏠'}
+          <div class="house-card-photo-overlay ${statusClass}">${statusLabel}</div>
+        </div>
+        <div class="house-card-body">
+          <div class="house-card-title-row"><div class="house-card-name">${h.name}</div></div>
+          <div class="house-card-location">${h.city} · מארחת: <strong>${h.owner_name}</strong></div>
+          <div class="house-card-features">${chips.join('')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ==================== Map ====================
+let leafletMap = null;
+const markers = {};
+
+function initLeafletMap() {
+  leafletMap = L.map('leafletMap', { center: [31.5, 34.9], zoom: 7, zoomControl: true, scrollWheelZoom: true });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 18
+  }).addTo(leafletMap);
+
+  houses.forEach(h => {
+    const statusClass = h.is_mine ? 'mine' : (h.is_available ? 'available' : '');
+    const icon = L.divIcon({
+      className: 'custom-pin-icon',
+      html: `<div class="leaflet-marker-pin ${statusClass}"><div class="pin-dot"></div></div>`,
+      iconSize: [32, 32], iconAnchor: [16, 32]
+    });
+    const marker = L.marker([h.lat, h.lng], { icon });
+    marker.on('click', () => openHouse(h.id));
+    markers[h.id] = marker;
+  });
+
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  houses.forEach(h => {
+    const marker = markers[h.id];
+    if (!marker) return;
+    const statusClass = h.is_mine ? 'mine' : (h.is_available ? 'available' : '');
+    marker.setIcon(L.divIcon({
+      className: 'custom-pin-icon',
+      html: `<div class="leaflet-marker-pin ${statusClass}"><div class="pin-dot"></div></div>`,
+      iconSize: [32, 32], iconAnchor: [16, 32]
+    }));
+    if (matchesFilters(h)) { if (!leafletMap.hasLayer(marker)) marker.addTo(leafletMap); }
+    else { if (leafletMap.hasLayer(marker)) leafletMap.removeLayer(marker); }
+  });
+}
+
+function renderPins() { if (leafletMap) updateMapMarkers(); }
+
+function updateCounts() {
+  const showing = houses.filter(matchesFilters).length;
+  document.getElementById('showingCount').textContent = showing;
+}
+
+// ==================== Modal ====================
+function openHouse(id) {
+  currentHouseId = id;
+  const h = houses.find(x => x.id === id);
+  if (!h) return;
+
+  document.getElementById('modalTitle').textContent = h.name;
+  document.getElementById('modalHost').innerHTML = `מארחת: <strong>${h.owner_name}</strong>`;
+
+  const status = document.getElementById('modalStatus');
+  status.textContent = h.is_available ? 'פנוי השבוע' : 'לא פנוי';
+  status.className = 'status-badge ' + (h.is_available ? 'available' : 'not-available');
+
+  const modalPhotos = getHousePhotos(h);
+  document.getElementById('modalPhotos').innerHTML = modalPhotos.map(url =>
+    url.startsWith('http')
+      ? `<div class="modal-photo" style="background-image:url('${url}')"></div>`
+      : `<div class="modal-photo">🏠</div>`
+  ).join('');
+
+  document.getElementById('modalFeatures').innerHTML = `
+    <div class="feature"><div class="feature-icon">🛏</div><div class="feature-text"><strong>${h.bedrooms} חדרים</strong>${h.beds} מיטות</div></div>
+    <div class="feature"><div class="feature-icon">👨‍👩‍👧</div><div class="feature-text"><strong>עד ${h.max_kids} ילדים</strong>בטוח למשפחה</div></div>
+    <div class="feature"><div class="feature-icon">${h.garden ? '🌳' : '🏢'}</div><div class="feature-text"><strong>${h.garden ? 'עם גינה' : 'ללא גינה'}</strong>${h.garden ? 'חצר פרטית' : 'דירה'}</div></div>
+    <div class="feature"><div class="feature-icon">${h.stairs ? '🪜' : '⬌'}</div><div class="feature-text"><strong>${h.stairs ? 'יש מדרגות' : 'ללא מדרגות'}</strong>${h.stairs ? 'שימי לב' : 'נגיש'}</div></div>
+    <div class="feature"><div class="feature-icon">${h.crib ? '🛌' : '✗'}</div><div class="feature-text"><strong>${h.crib ? 'מקום ללול' : 'אין מקום ללול'}</strong>${h.crib ? 'לתינוקות' : ''}</div></div>
+    <div class="feature"><div class="feature-icon">${h.mamad ? '🛡️' : '⚠'}</div><div class="feature-text"><strong>${h.mamad ? 'יש ממ"ד' : 'אין ממ"ד'}</strong>${h.mamad ? 'חדר ביטחון' : 'מקלט ציבורי סמוך'}</div></div>
+  `;
+
+  document.getElementById('modalNoteWrap').innerHTML = h.note
+    ? `<div class="modal-note"><strong>הודעה מהמארחת:</strong> ${h.note}</div>` : '';
+
+  const btn = document.getElementById('modalActionBtn');
+  const revealWrap = document.getElementById('modalRevealWrap');
+
+  if (h.is_mine) {
+    btn.textContent = h.is_available ? 'סמני כלא פנוי' : 'סמני כפנוי לשבוע';
+    btn.className = 'btn btn-primary';
+    btn.onclick = () => { toggleAvailability(h.id); closeModal(); };
+    revealWrap.innerHTML = '';
+  } else if (h.is_approved) {
+    revealWrap.innerHTML = `
+      <div class="revealed-details">
+        <div class="revealed-details-title">✓ הבקשה אושרה · פרטי הגעה</div>
+        <div class="revealed-item"><span class="revealed-item-label">כתובת מלאה</span><span class="revealed-item-value">${h.address}</span></div>
+        <div class="revealed-item"><span class="revealed-item-label">טלפון המארחת</span><span class="revealed-item-value">${h.owner_phone}</span></div>
+      </div>`;
+    btn.textContent = 'פתחי וואטסאפ למארחת';
+    btn.className = 'btn btn-primary';
+    btn.onclick = () => { window.open('https://wa.me/' + h.owner_phone?.replace(/[^0-9]/g,'').replace(/^0/,'972'), '_blank'); };
+  } else if (h.is_available) {
+    revealWrap.innerHTML = '<div class="hidden-details"><div class="hidden-details-icon">🔒</div><div class="hidden-details-text">הכתובת המלאה והטלפון יוצגו לאחר אישור המארחת</div></div>';
+    btn.textContent = 'שליחת בקשה למארחת';
+    btn.className = 'btn btn-primary';
+    btn.onclick = sendRequest;
+  } else {
+    revealWrap.innerHTML = '';
+    btn.textContent = 'הבית אינו פנוי השבוע';
+    btn.className = 'btn btn-primary disabled';
+    btn.onclick = null;
+  }
+
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); }
+
+async function sendRequest() {
+  const h = houses.find(x => x.id === currentHouseId);
+  if (!h) return;
+
+  const btn = document.getElementById('modalActionBtn');
+  btn.textContent = 'שולח...';
+  btn.onclick = null;
+
+  try {
+    const res = await fetch('/api/requests', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ house_id: h.id })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error);
+      btn.textContent = 'שליחת בקשה למארחת';
+      btn.onclick = sendRequest;
+      return;
+    }
+
+    closeModal();
+
+    document.getElementById('sentText').textContent =
+      `${h.owner_name} קיבלה את הבקשה שלך לסופ"ש. תעני לך בוואטסאפ בקרוב.`;
+
+    document.getElementById('whatsappPreviewText').innerHTML =
+      `היי ${h.owner_name.split(' ')[0]} 🌿<br>${userData.name} שלחה בקשה לשהות ב<strong>"${h.name}"</strong> בסופ"ש הקרוב.<br>היכנסי לאפליקציה לאישור`;
+
+    document.getElementById('sentOverlay').classList.add('open');
+  } catch (err) {
+    console.error('Send request error:', err);
+    alert('שגיאה בשליחת הבקשה');
+    btn.textContent = 'שליחת בקשה למארחת';
+    btn.onclick = sendRequest;
+  }
+}
+
+function closeSent() { document.getElementById('sentOverlay').classList.remove('open'); }
+
+// ==================== Filter Events ====================
+document.getElementById('filterRow').addEventListener('click', (e) => {
+  const pill = e.target.closest('.filter-pill');
+  if (!pill) return;
+  const f = pill.dataset.filter;
+  if (activeFilters.has(f)) { activeFilters.delete(f); pill.classList.remove('active'); }
+  else { activeFilters.add(f); pill.classList.add('active'); }
+  renderPins();
+  renderHouseList();
+  updateCounts();
+});
+
+document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'modalBackdrop') closeModal();
+});
+
+// Fly to my house on card click
+document.getElementById('myHouses')?.addEventListener('click', (e) => {
+  const card = e.target.closest('.my-house-card');
+  const toggle = e.target.closest('.toggle');
+  if (!card || toggle) return;
+  const id = parseInt(card.dataset.id);
+  const h = houses.find(x => x.id === id);
+  if (h && leafletMap) leafletMap.flyTo([h.lat, h.lng], 13, { duration: 1.5 });
+});
+
+// ==================== Start ====================
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>שבית - כניסה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Assistant', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #FCE8DC 0%, #F5E6F1 50%, #E0F0F5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: #FDF6EC;
+      border-radius: 28px;
+      padding: 40px 28px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(45, 42, 36, 0.15);
+      text-align: center;
+    }
+    .logo-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #6FAB5F 0%, #4FC3A1 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 36px;
+      font-weight: 700;
+      font-family: 'Frank Ruhl Libre', serif;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(111, 171, 95, 0.35);
+      transform: rotate(-5deg);
+    }
+    h1 {
+      font-family: 'Frank Ruhl Libre', serif;
+      font-size: 36px;
+      font-weight: 500;
+      color: #2D2A24;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      color: #8B8578;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+    .input-group {
+      margin-bottom: 14px;
+      text-align: right;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #8B8578;
+      font-weight: 600;
+      margin-bottom: 6px;
+      padding-right: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(168, 161, 150, 0.3);
+      font-family: inherit;
+      font-size: 15px;
+      color: #2D2A24;
+      background: white;
+      direction: rtl;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: #6FAB5F; }
+    button {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: #2D2A24;
+      color: #FDF6EC;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+    button:hover { background: #4A463D; }
+    button:active { transform: scale(0.98); }
+    button:disabled { background: #A8A196; cursor: not-allowed; }
+    .error {
+      background: #FFE4E4;
+      color: #C62828;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .error.show { display: block; }
+    .footer-note {
+      margin-top: 24px;
+      font-size: 11px;
+      color: #A8A196;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo-icon">ש</div>
+    <h1>שבית</h1>
+    <p class="subtitle">בתי חברות לסופ"ש</p>
+
+    <div class="error" id="error"></div>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="code">קוד כניסה</label>
+        <input type="text" id="code" required placeholder="קיבלת מהמנהלת">
+      </div>
+      <div class="input-group">
+        <label for="name">השם שלך</label>
+        <input type="text" id="name" required placeholder="איך קוראים לך?">
+      </div>
+      <div class="input-group">
+        <label for="phone">מספר טלפון</label>
+        <input type="tel" id="phone" required placeholder="050-1234567">
+      </div>
+      <button type="submit" id="submitBtn">כניסה</button>
+    </form>
+
+    <p class="footer-note">
+      רק בנות עם קוד יכולות להיכנס<br>
+      הטלפון שלך ישמש לקבלת בקשות אירוח
+    </p>
+  </div>
+
+  <script>
+    // If already logged in, go to app
+    if (localStorage.getItem('shabbit_token')) {
+      window.location.href = '/app.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const code = document.getElementById('code').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const errorEl = document.getElementById('error');
+      const btn = document.getElementById('submitBtn');
+      errorEl.classList.remove('show');
+      btn.disabled = true;
+      btn.textContent = 'מתחבר...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, name, phone })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'שגיאה בכניסה');
+        }
+
+        const data = await res.json();
+        localStorage.setItem('shabbit_token', data.token);
+        localStorage.setItem('shabbit_user', JSON.stringify(data.user));
+        window.location.href = '/app.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'כניסה';
+      }
+    });
+  </script>
+</body>
+</html>
