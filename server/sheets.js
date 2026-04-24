@@ -14,76 +14,13 @@ const demoData = {
   users: [
     { phone: '050-0000000', name: 'הודיה', created_at: '2026-04-21', is_admin: true, approved: true }
   ],
-  houses: [
-    {
-      id: 1, owner_phone: '050-0000000', name: 'הבית של הודיה',
-      address: 'רחוב הרצל 42, ירושלים', lat: 31.7683, lng: 35.2137,
-      bedrooms: 3, beds: 5, max_kids: 4,
-      garden: true, stairs: false, crib: true, mamad: true,
-      photos: '', is_available: false, note: 'הבית שלי', price: 0, price_note: ''
-    },
-    {
-      id: 2, owner_phone: '050-0000000', name: 'בית הורי בנתניה',
-      address: 'שדרות הים 15, נתניה', lat: 32.3215, lng: 34.8532,
-      bedrooms: 4, beds: 7, max_kids: 5,
-      garden: true, stairs: true, crib: true, mamad: false,
-      photos: '', is_available: true, note: 'בית מקסים ליד הים', price: 0, price_note: ''
-    },
-    {
-      id: 3, owner_phone: '052-1111111', name: 'דירה בלב תל אביב',
-      address: 'רחוב דיזנגוף 88, תל אביב', lat: 32.0853, lng: 34.7818,
-      bedrooms: 2, beds: 3, max_kids: 2,
-      garden: false, stairs: true, crib: false, mamad: true,
-      photos: '', is_available: true, note: 'דירה חמימה, קרובה לחופים', price: 50, price_note: 'חשמל בלבד'
-    },
-    {
-      id: 4, owner_phone: '052-2222222', name: 'הבית בצפת',
-      address: 'רחוב העלייה 7, צפת', lat: 32.9646, lng: 35.4960,
-      bedrooms: 3, beds: 6, max_kids: 4,
-      garden: true, stairs: true, crib: true, mamad: false,
-      photos: '', is_available: true, note: 'בית כפרי מקסים בעיר העתיקה', price: 0, price_note: ''
-    },
-    {
-      id: 5, owner_phone: '054-3333333', name: 'בית משפחתי בחיפה',
-      address: 'רחוב הגפן 12, חיפה', lat: 32.7940, lng: 34.9896,
-      bedrooms: 4, beds: 8, max_kids: 6,
-      garden: true, stairs: false, crib: true, mamad: true,
-      photos: '', is_available: true, note: 'בית גדול ומרווח, מושלם למשפחות', price: 100, price_note: 'חשמל + ניקיון'
-    },
-    {
-      id: 6, owner_phone: '050-4444444', name: 'וילה בבאר שבע',
-      address: 'רחוב האלונים 3, באר שבע', lat: 31.2518, lng: 34.7913,
-      bedrooms: 5, beds: 10, max_kids: 8,
-      garden: true, stairs: true, crib: false, mamad: true,
-      photos: '', is_available: false, note: 'וילה מפוארת עם בריכה', price: 200, price_note: 'כולל ניקיון'
-    },
-    {
-      id: 7, owner_phone: '052-5555555', name: 'דירה באילת',
-      address: 'שדרות התמרים 20, אילת', lat: 29.5577, lng: 34.9519,
-      bedrooms: 2, beds: 4, max_kids: 2,
-      garden: false, stairs: false, crib: false, mamad: true,
-      photos: '', is_available: false, note: 'נוף לים האדום', price: 0, price_note: ''
-    },
-    {
-      id: 8, owner_phone: '053-6666666', name: 'בית בזיכרון יעקב',
-      address: 'רחוב המייסדים 8, זיכרון יעקב', lat: 32.5767, lng: 34.9543,
-      bedrooms: 3, beds: 5, max_kids: 3,
-      garden: true, stairs: true, crib: true, mamad: false,
-      photos: '', is_available: false, note: 'בית חמים באווירה כפרית', price: 0, price_note: ''
-    }
-  ],
+  houses: [],
   requests: []
 };
 
 // Demo user name lookup
 const demoUserNames = {
-  '050-0000000': 'הודיה',
-  '052-1111111': 'שירה כהן',
-  '052-2222222': 'רחל לוי',
-  '054-3333333': 'נועה אברהם',
-  '050-4444444': 'מיכל דוד',
-  '052-5555555': 'תמר מזרחי',
-  '053-6666666': 'אסתר פרידמן'
+  '050-0000000': 'הודיה'
 };
 
 // ==================== Google Sheets Connection ====================
