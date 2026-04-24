@@ -618,6 +618,24 @@ function logout() {
   window.location.href = '/';
 }
 
+async function reconnect() {
+  if (!userData.phone) return false;
+  try {
+    const res = await fetch('/api/auth/reconnect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: userData.phone })
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    localStorage.setItem('shabbit_token', data.token);
+    localStorage.setItem('shabbit_user', JSON.stringify(data.user));
+    // Update local references
+    Object.assign(userData, data.user);
+    return true;
+  } catch { return false; }
+}
+
 // ==================== State ====================
 let houses = [];
 let currentHouseId = null;
@@ -645,10 +663,13 @@ async function init() {
 
   // Load houses
   try {
-    const res = await fetch('/api/houses', { headers: getHeaders() });
+    let res = await fetch('/api/houses', { headers: getHeaders() });
     if (res.status === 401) {
-      logout();
-      return;
+      // Token expired (server restarted) - try auto-reconnect
+      const reconnected = await reconnect();
+      if (!reconnected) { logout(); return; }
+      res = await fetch('/api/houses', { headers: getHeaders() });
+      if (res.status === 401) { logout(); return; }
     }
     houses = await res.json();
 

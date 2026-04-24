@@ -162,10 +162,38 @@
   </div>
 
   <script>
-    // If already logged in, go to app
-    if (localStorage.getItem('shabbit_token')) {
-      window.location.href = '/app.html';
-    }
+    // If already logged in, try to reconnect automatically
+    (async () => {
+      const savedToken = localStorage.getItem('shabbit_token');
+      const savedUser = JSON.parse(localStorage.getItem('shabbit_user') || '{}');
+
+      if (savedToken && savedUser.phone) {
+        // Try if existing token works
+        let res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + savedToken }
+        }).catch(() => null);
+
+        if (res && res.ok) {
+          window.location.href = '/app.html';
+          return;
+        }
+
+        // Token expired - try reconnect with phone
+        res = await fetch('/api/auth/reconnect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: savedUser.phone })
+        }).catch(() => null);
+
+        if (res && res.ok) {
+          const data = await res.json();
+          localStorage.setItem('shabbit_token', data.token);
+          localStorage.setItem('shabbit_user', JSON.stringify(data.user));
+          window.location.href = '/app.html';
+          return;
+        }
+      }
+    })();
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();

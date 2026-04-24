@@ -64,6 +64,33 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// POST /api/auth/reconnect - auto-login for returning approved users (no code needed)
+router.post('/reconnect', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'חסר מספר טלפון' });
+
+    const users = await readSheet('users');
+    const user = users.find(u => u.phone === phone);
+
+    if (!user || !user.approved) {
+      return res.status(401).json({ error: 'not_approved' });
+    }
+
+    const token = crypto.randomUUID();
+    const isAdmin = user.is_admin === true || user.is_admin === 'TRUE';
+    sessions.set(token, { phone, name: user.name, is_admin: isAdmin });
+
+    res.json({
+      token,
+      user: { phone, name: user.name, is_admin: isAdmin }
+    });
+  } catch (err) {
+    console.error('Reconnect error:', err);
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
 // GET /api/auth/me
 router.get('/me', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
