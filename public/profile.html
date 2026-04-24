@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>שבית - הפרופיל שלי</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #FDF6EC; --cream-light: #FFFBF3; --cream-dark: #F5EAD2;
+  --sage: #6FAB5F; --sage-dark: #4C8A3E; --sage-light: #D1EBC5;
+  --terracotta: #E87A4F; --terracotta-light: #FBD4BF;
+  --warm-gray: #A8A196; --warm-gray-light: #E5DFD2;
+  --ink: #2D2A24; --ink-soft: #4A463D; --muted: #8B8578; --white: #FFFFFF;
+  --coral: #E96B8B; --coral-light: #FBD2DC;
+  --sky: #5BA8D6; --sky-light: #C9E5F5;
+  --mint: #4FC3A1; --mint-light: #C8EDDD;
+  --sunshine: #F4C14E; --sunshine-light: #FDEDC4;
+  --shadow-soft: 0 2px 12px rgba(45, 42, 36, 0.06);
+}
+
+body {
+  font-family: 'Assistant', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #FCE8DC 0%, #F5E6F1 50%, #E0F0F5 100%);
+  color: var(--ink); min-height: 100vh; padding: 0;
+}
+
+.app {
+  max-width: 440px; margin: 0 auto; background: var(--cream);
+  min-height: 100vh; padding-bottom: 20px;
+  box-shadow: 0 0 80px rgba(0,0,0,0.1);
+}
+
+.header {
+  padding: 20px 20px 14px;
+  background: linear-gradient(135deg, var(--cream) 0%, #FFE8D5 100%);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid rgba(168, 161, 150, 0.15);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.header-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 22px; font-weight: 500;
+}
+
+.back-btn {
+  background: var(--white); border: 1px solid var(--warm-gray-light);
+  border-radius: 12px; padding: 8px 16px; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  cursor: pointer;
+}
+
+/* Profile header */
+.profile-hero {
+  padding: 24px 20px; text-align: center;
+  background: linear-gradient(135deg, #FFF1C2 0%, #FFD4E5 50%, #C9E5F5 100%);
+}
+
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 10px;
+  background: linear-gradient(135deg, var(--coral) 0%, var(--terracotta) 100%);
+  color: var(--white); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 24px; border: 3px solid var(--white);
+  box-shadow: 0 4px 16px rgba(233, 107, 139, 0.3);
+}
+
+.profile-name {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 24px; font-weight: 500; margin-bottom: 2px;
+}
+
+.profile-phone { font-size: 13px; color: var(--muted); direction: ltr; }
+
+.logout-btn {
+  margin-top: 12px; background: none; border: 1px solid rgba(168, 161, 150, 0.4);
+  border-radius: 100px; padding: 6px 18px; font-family: inherit;
+  font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer;
+}
+
+/* Sections */
+.section { padding: 20px; }
+.section-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 18px; font-weight: 500; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.section-divider { height: 1px; background: var(--warm-gray-light); margin: 0 20px; }
+
+/* House cards in profile */
+.house-edit-card {
+  background: var(--white); border-radius: 18px; padding: 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(168, 161, 150, 0.1);
+}
+
+.house-edit-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+
+.house-edit-name {
+  font-size: 16px; font-weight: 600;
+}
+
+.house-edit-btn {
+  background: var(--cream-dark); border: none; border-radius: 10px;
+  padding: 6px 14px; font-family: inherit; font-size: 12px;
+  font-weight: 600; color: var(--ink-soft); cursor: pointer;
+}
+
+.house-edit-meta {
+  font-size: 12px; color: var(--muted); line-height: 1.6;
+}
+
+.price-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--sunshine-light); color: #8A5F10;
+  padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600;
+}
+
+.price-tag.free {
+  background: var(--sage-light); color: var(--sage-dark);
+}
+
+/* Add house button */
+.add-house-btn {
+  width: 100%; padding: 16px; border-radius: 16px;
+  border: 2px dashed var(--warm-gray-light); background: var(--cream-light);
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  color: var(--sage-dark); cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.add-house-btn:hover {
+  border-color: var(--sage); background: var(--sage-light);
+}
+
+/* Form modal */
+.form-backdrop {
+  position: fixed; inset: 0; background: rgba(45, 42, 36, 0.5);
+  backdrop-filter: blur(6px); z-index: 1000; display: none;
+  align-items: flex-end; justify-content: center;
+}
+.form-backdrop.open { display: flex; }
+
+.form-modal {
+  background: var(--cream-light); width: 100%; max-width: 440px;
+  max-height: 92vh; border-radius: 28px 28px 0 0; overflow-y: auto;
+  animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 20px 20px 30px;
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.form-handle { width: 40px; height: 4px; background: var(--warm-gray-light); border-radius: 2px; margin: 0 auto 16px; }
+
+.form-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 22px; font-weight: 500; margin-bottom: 20px; text-align: center;
+}
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block; font-size: 12px; color: var(--muted);
+  font-weight: 600; margin-bottom: 6px; padding-right: 4px;
+}
+
+.form-input {
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  border: 1.5px solid rgba(168, 161, 150, 0.3);
+  font-family: inherit; font-size: 14px; color: var(--ink);
+  background: var(--white); outline: none; direction: rtl;
+}
+.form-input:focus { border-color: var(--sage); }
+
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+
+.form-toggle-row {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+}
+
+.form-toggle {
+  padding: 8px 14px; border-radius: 100px;
+  border: 1.5px solid var(--warm-gray-light); background: var(--white);
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--ink-soft); cursor: pointer; transition: all 0.2s;
+}
+.form-toggle.active {
+  background: var(--sage); color: var(--white); border-color: var(--sage);
+}
+
+.price-section {
+  background: var(--sunshine-light); border-radius: 14px;
+  padding: 14px; margin-bottom: 14px;
+}
+
+.price-section-title {
+  font-size: 13px; font-weight: 700; color: #8A5F10; margin-bottom: 10px;
+}
+
+.form-submit {
+  width: 100%; padding: 16px; border-radius: 16px; border: none;
+  background: var(--ink); color: var(--cream-light);
+  font-family: inherit; font-size: 16px; font-weight: 600;
+  cursor: pointer; margin-top: 6px;
+}
+.form-submit:hover { background: var(--ink-soft); }
+.form-submit:active { transform: scale(0.98); }
+
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--cream-light);
+  padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 2000;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-title">הפרופיל שלי</div>
+    <button class="back-btn" onclick="window.location.href='/app.html'">חזרה למפה</button>
+  </header>
+
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profileAvatar">--</div>
+    <div class="profile-name" id="profileName">...</div>
+    <div class="profile-phone" id="profilePhone"></div>
+    <button class="logout-btn" onclick="logout()">התנתקות</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">הבתים שלי</div>
+    <div id="myHousesList"></div>
+    <button class="add-house-btn" onclick="openForm(null)">+ הוספת בית לאירוח</button>
+  </div>
+</div>
+
+<!-- House Form Modal -->
+<div class="form-backdrop" id="formBackdrop">
+  <div class="form-modal">
+    <div class="form-handle"></div>
+    <div class="form-title" id="formTitle">הוספת בית</div>
+
+    <form id="houseForm" onsubmit="submitHouse(event)">
+      <input type="hidden" id="editHouseId">
+
+      <div class="form-group">
+        <label class="form-label">שם הבית *</label>
+        <input type="text" class="form-input" id="f_name" required placeholder="למשל: הבית של הודיה">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">כתובת מלאה *</label>
+        <input type="text" class="form-input" id="f_address" required placeholder="רחוב, מספר, עיר">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">חדרי שינה</label>
+          <input type="number" class="form-input" id="f_bedrooms" min="1" value="2" style="direction:ltr">
+        </div>
+        <div class="form-group">
+          <label class="form-label">מיטות</label>
+          <input type="number" class="form-input" id="f_beds" min="1" value="3" style="direction:ltr">
+        </div>
+        <div class="form-group">
+          <label class="form-label">מקס' ילדים</label>
+          <input type="number" class="form-input" id="f_max_kids" min="0" value="2" style="direction:ltr">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">מה יש בבית?</label>
+        <div class="form-toggle-row">
+          <button type="button" class="form-toggle" data-field="garden" onclick="toggleField(this)">🌳 גינה</button>
+          <button type="button" class="form-toggle" data-field="mamad" onclick="toggleField(this)">🛡️ ממ"ד</button>
+          <button type="button" class="form-toggle" data-field="crib" onclick="toggleField(this)">🛌 מקום ללול</button>
+          <button type="button" class="form-toggle" data-field="stairs" onclick="toggleField(this)">🪜 מדרגות</button>
+        </div>
+      </div>
+
+      <div class="price-section">
+        <div class="price-section-title">עלות לסופ"ש</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">סכום (₪)</label>
+            <input type="number" class="form-input" id="f_price" min="0" value="0" placeholder="0 = חינם" style="direction:ltr">
+          </div>
+          <div class="form-group">
+            <label class="form-label">הערה (למשל: חשמל בלבד)</label>
+            <input type="text" class="form-input" id="f_price_note" placeholder="על מה הסכום?">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">הודעה לאורחות</label>
+        <input type="text" class="form-input" id="f_note" placeholder="למשל: יש חניה, מביאים מצעים...">
+      </div>
+
+      <button type="submit" class="form-submit" id="formSubmitBtn">הוספת הבית</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const token = localStorage.getItem('shabbit_token');
+const userData = JSON.parse(localStorage.getItem('shabbit_user') || '{}');
+if (!token) window.location.href = '/';
+
+let houses = [];
+const toggleState = { garden: false, stairs: false, crib: false, mamad: false };
+
+function getHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function logout() {
+  localStorage.removeItem('shabbit_token');
+  localStorage.removeItem('shabbit_user');
+  window.location.href = '/';
+}
+
+// ==================== Profile ====================
+function renderProfile() {
+  document.getElementById('profileName').textContent = userData.name || '...';
+  document.getElementById('profilePhone').textContent = userData.phone || '';
+  document.getElementById('profileAvatar').textContent = (userData.name || '??').substring(0, 2);
+}
+
+// ==================== My Houses ====================
+async function loadHouses() {
+  try {
+    const res = await fetch('/api/houses', { headers: getHeaders() });
+    if (res.status === 401) { window.location.href = '/'; return; }
+    houses = await res.json();
+    renderMyHouses();
+  } catch (err) { console.error('Load houses error:', err); }
+}
+
+function renderMyHouses() {
+  const el = document.getElementById('myHousesList');
+  const mine = houses.filter(h => h.is_mine);
+
+  if (mine.length === 0) {
+    el.innerHTML = '<div style="text-align:center; padding:16px; color:var(--muted); font-size:13px;">עדיין לא הוספת בתים. לחצי למטה להוסיף!</div>';
+    return;
+  }
+
+  el.innerHTML = mine.map(h => {
+    const priceHtml = h.price > 0
+      ? `<span class="price-tag">₪${h.price} ${h.price_note ? '· ' + h.price_note : ''}</span>`
+      : `<span class="price-tag free">חינם</span>`;
+
+    return `
+    <div class="house-edit-card">
+      <div class="house-edit-header">
+        <div class="house-edit-name">${h.name}</div>
+        <button class="house-edit-btn" onclick="openForm(${h.id})">עריכה</button>
+      </div>
+      <div class="house-edit-meta">
+        📍 ${h.address || h.city}<br>
+        🛏 ${h.bedrooms} חדרים · ${h.beds} מיטות · עד ${h.max_kids} ילדים<br>
+        ${h.garden ? '🌳 גינה · ' : ''}${h.mamad ? '🛡️ ממ"ד · ' : ''}${h.crib ? '🛌 לול · ' : ''}${h.stairs ? '🪜 מדרגות' : ''}<br>
+        💰 ${priceHtml}
+      </div>
+    </div>
+  `;}).join('');
+}
+
+// ==================== Form ====================
+function toggleField(btn) {
+  const field = btn.dataset.field;
+  toggleState[field] = !toggleState[field];
+  btn.classList.toggle('active', toggleState[field]);
+}
+
+function openForm(houseId) {
+  const form = document.getElementById('houseForm');
+  form.reset();
+
+  // Reset toggles
+  Object.keys(toggleState).forEach(k => toggleState[k] = false);
+  document.querySelectorAll('.form-toggle').forEach(b => b.classList.remove('active'));
+
+  if (houseId) {
+    // Edit mode
+    const h = houses.find(x => x.id === houseId);
+    if (!h) return;
+
+    document.getElementById('formTitle').textContent = 'עריכת בית';
+    document.getElementById('formSubmitBtn').textContent = 'שמירת שינויים';
+    document.getElementById('editHouseId').value = houseId;
+
+    document.getElementById('f_name').value = h.name;
+    document.getElementById('f_address').value = h.address || '';
+    document.getElementById('f_bedrooms').value = h.bedrooms;
+    document.getElementById('f_beds').value = h.beds;
+    document.getElementById('f_max_kids').value = h.max_kids;
+    document.getElementById('f_price').value = h.price || 0;
+    document.getElementById('f_price_note').value = h.price_note || '';
+    document.getElementById('f_note').value = h.note || '';
+
+    ['garden', 'stairs', 'crib', 'mamad'].forEach(f => {
+      toggleState[f] = !!h[f];
+      const btn = document.querySelector(`.form-toggle[data-field="${f}"]`);
+      if (btn) btn.classList.toggle('active', toggleState[f]);
+    });
+  } else {
+    document.getElementById('formTitle').textContent = 'הוספת בית לאירוח';
+    document.getElementById('formSubmitBtn').textContent = 'הוספת הבית';
+    document.getElementById('editHouseId').value = '';
+  }
+
+  document.getElementById('formBackdrop').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('formBackdrop').classList.remove('open');
+}
+
+async function submitHouse(e) {
+  e.preventDefault();
+  const editId = document.getElementById('editHouseId').value;
+  const isEdit = !!editId;
+
+  const body = {
+    name: document.getElementById('f_name').value.trim(),
+    address: document.getElementById('f_address').value.trim(),
+    bedrooms: Number(document.getElementById('f_bedrooms').value) || 1,
+    beds: Number(document.getElementById('f_beds').value) || 1,
+    max_kids: Number(document.getElementById('f_max_kids').value) || 0,
+    garden: toggleState.garden,
+    stairs: toggleState.stairs,
+    crib: toggleState.crib,
+    mamad: toggleState.mamad,
+    price: Number(document.getElementById('f_price').value) || 0,
+    price_note: document.getElementById('f_price_note').value.trim(),
+    note: document.getElementById('f_note').value.trim(),
+  };
+
+  const btn = document.getElementById('formSubmitBtn');
+  btn.textContent = 'שומר...';
+
+  try {
+    const url = isEdit ? `/api/houses/${editId}` : '/api/houses';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method, headers: getHeaders(),
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error);
+      btn.textContent = isEdit ? 'שמירת שינויים' : 'הוספת הבית';
+      return;
+    }
+
+    closeForm();
+    showToast(isEdit ? 'הבית עודכן ✓' : 'הבית נוסף ✓');
+    await loadHouses();
+  } catch (err) {
+    console.error('Submit error:', err);
+    alert('שגיאה בשמירה');
+    btn.textContent = isEdit ? 'שמירת שינויים' : 'הוספת הבית';
+  }
+}
+
+// Close form on backdrop click
+document.getElementById('formBackdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'formBackdrop') closeForm();
+});
+
+// ==================== Init ====================
+renderProfile();
+loadHouses();
+</script>
+</body>
+</html>

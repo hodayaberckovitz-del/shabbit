@@ -500,8 +500,8 @@ body {
         <div class="logo">שבית</div>
       </div>
       <div class="user-badge">
-        <div class="greeting">שלום, <strong id="userName">...</strong></div>
-        <div class="avatar" id="userAvatar" onclick="logout()">--</div>
+        <div class="greeting" onclick="window.location.href='/profile.html'" style="cursor:pointer">שלום, <strong id="userName">...</strong></div>
+        <div class="avatar" id="userAvatar" onclick="window.location.href='/profile.html'" style="cursor:pointer" title="הפרופיל שלי">--</div>
       </div>
     </div>
   </header>
@@ -775,6 +775,8 @@ function renderHouseList() {
     if (h.garden) chips.push('<span class="feature-chip garden">עם גינה</span>');
     if (h.crib) chips.push('<span class="feature-chip crib">מקום ללול</span>');
     if (h.mamad) chips.push('<span class="feature-chip mamad">ממ"ד</span>');
+    if (h.price > 0) chips.push(`<span class="feature-chip" style="background:#FDEDC4;color:#8A5F10">₪${h.price}</span>`);
+    else chips.push('<span class="feature-chip" style="background:#D1EBC5;color:#4C8A3E">חינם</span>');
 
     return `
       <div class="house-card ${h.is_available ? 'available' : ''}" onclick="openHouse(${h.id})">
@@ -867,8 +869,15 @@ function openHouse(id) {
     <div class="feature"><div class="feature-icon">${h.mamad ? '🛡️' : '⚠'}</div><div class="feature-text"><strong>${h.mamad ? 'יש ממ"ד' : 'אין ממ"ד'}</strong>${h.mamad ? 'חדר ביטחון' : 'מקלט ציבורי סמוך'}</div></div>
   `;
 
-  document.getElementById('modalNoteWrap').innerHTML = h.note
-    ? `<div class="modal-note"><strong>הודעה מהמארחת:</strong> ${h.note}</div>` : '';
+  // Price info
+  let priceHtml = '';
+  if (h.price > 0) {
+    priceHtml = `<div class="modal-note" style="border-right-color:var(--sunshine);background:var(--sunshine-light)"><strong>💰 עלות: ₪${h.price} לסופ"ש</strong>${h.price_note ? ' · ' + h.price_note : ''}</div>`;
+  }
+
+  document.getElementById('modalNoteWrap').innerHTML =
+    priceHtml +
+    (h.note ? `<div class="modal-note"><strong>הודעה מהמארחת:</strong> ${h.note}</div>` : '');
 
   const btn = document.getElementById('modalActionBtn');
   const revealWrap = document.getElementById('modalRevealWrap');
