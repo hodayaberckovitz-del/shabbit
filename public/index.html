@@ -105,6 +105,19 @@
       display: none;
     }
     .error.show { display: block; }
+    .pending-msg {
+      background: #FFF3E0;
+      color: #E65100;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+      border: 1px solid #FFE0B2;
+    }
+    .pending-msg.show { display: block; }
+    .pending-icon { font-size: 32px; margin-bottom: 8px; }
+    .pending-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
     .footer-note {
       margin-top: 24px;
       font-size: 11px;
@@ -120,6 +133,11 @@
     <p class="subtitle">בתי חברות לסופ"ש</p>
 
     <div class="error" id="error"></div>
+    <div class="pending-msg" id="pendingMsg">
+      <div class="pending-icon">⏳</div>
+      <div class="pending-title">הבקשה נשלחה!</div>
+      <div id="pendingText">המנהלת תאשר אותך בקרוב. נסי שוב מאוחר יותר.</div>
+    </div>
 
     <form id="loginForm">
       <div class="input-group">
@@ -170,6 +188,15 @@
 
         if (!res.ok) {
           const err = await res.json();
+          if (err.error === 'pending_approval') {
+            document.getElementById('loginForm').style.display = 'none';
+            const pendingEl = document.getElementById('pendingMsg');
+            document.getElementById('pendingText').textContent = err.message;
+            pendingEl.classList.add('show');
+            btn.disabled = false;
+            btn.textContent = 'כניסה';
+            return;
+          }
           throw new Error(err.error || 'שגיאה בכניסה');
         }
 

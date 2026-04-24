@@ -12,7 +12,7 @@ const demoData = {
     { key: 'admin_phone', value: '050-0000000' }
   ],
   users: [
-    { phone: '050-0000000', name: 'הודיה', created_at: '2026-04-21', is_admin: true }
+    { phone: '050-0000000', name: 'הודיה', created_at: '2026-04-21', is_admin: true, approved: true }
   ],
   houses: [
     {
@@ -133,7 +133,7 @@ export async function appendRow(sheetName, row) {
     demoData[sheetName] = demoData[sheetName] || [];
     // Convert array to object using known keys
     if (sheetName === 'users') {
-      demoData[sheetName].push({ phone: row[0], name: row[1], created_at: row[2], is_admin: row[3] === 'TRUE' || row[3] === true });
+      demoData[sheetName].push({ phone: row[0], name: row[1], created_at: row[2], is_admin: row[3] === 'TRUE' || row[3] === true, approved: row[4] === 'TRUE' || row[4] === true });
     } else if (sheetName === 'requests') {
       demoData[sheetName].push({ id: row[0], house_id: row[1], guest_phone: row[2], status: row[3], created_at: row[4], approved_at: row[5] || '' });
     }

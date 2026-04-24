@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>שבית - ניהול משתמשות</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #FDF6EC; --cream-light: #FFFBF3; --cream-dark: #F5EAD2;
+  --sage: #6FAB5F; --sage-dark: #4C8A3E; --sage-light: #D1EBC5;
+  --terracotta: #E87A4F; --terracotta-light: #FBD4BF;
+  --warm-gray: #A8A196; --warm-gray-light: #E5DFD2;
+  --ink: #2D2A24; --ink-soft: #4A463D; --muted: #8B8578; --white: #FFFFFF;
+  --coral: #E96B8B; --coral-light: #FBD2DC;
+  --sky: #5BA8D6; --sky-light: #C9E5F5;
+  --mint: #4FC3A1;
+  --shadow-soft: 0 2px 12px rgba(45, 42, 36, 0.06);
+}
+
+body {
+  font-family: 'Assistant', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #FCE8DC 0%, #F5E6F1 50%, #E0F0F5 100%);
+  color: var(--ink); min-height: 100vh; padding: 0;
+}
+
+.app {
+  max-width: 440px; margin: 0 auto; background: var(--cream);
+  min-height: 100vh; position: relative;
+  box-shadow: 0 0 80px rgba(0,0,0,0.1);
+}
+
+.header {
+  padding: 20px 20px 14px;
+  background: linear-gradient(135deg, var(--cream) 0%, #FFE8D5 100%);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid rgba(168, 161, 150, 0.15);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.header-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 22px; font-weight: 500;
+}
+
+.back-btn {
+  background: var(--white); border: 1px solid var(--warm-gray-light);
+  border-radius: 12px; padding: 8px 16px; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  cursor: pointer; transition: all 0.2s;
+}
+.back-btn:hover { background: var(--cream-dark); }
+
+.section { padding: 20px; }
+.section-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 18px; font-weight: 500; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.badge {
+  background: var(--coral); color: var(--white);
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 100px; font-family: 'Assistant', sans-serif;
+}
+
+.user-card {
+  background: var(--white); border-radius: 16px; padding: 14px 16px;
+  margin-bottom: 10px; box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(168, 161, 150, 0.1);
+  display: flex; align-items: center; gap: 12px;
+}
+
+.user-card.pending {
+  border-right: 3px solid var(--terracotta);
+}
+
+.user-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: var(--white); flex-shrink: 0;
+}
+
+.user-avatar.pending { background: linear-gradient(135deg, var(--terracotta) 0%, var(--coral) 100%); }
+.user-avatar.approved { background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%); }
+.user-avatar.admin { background: linear-gradient(135deg, var(--sky) 0%, #7AB8DD 100%); }
+
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.user-phone { font-size: 12px; color: var(--muted); direction: ltr; text-align: right; }
+.user-date { font-size: 11px; color: var(--warm-gray); }
+
+.user-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.action-btn {
+  width: 38px; height: 38px; border-radius: 12px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; transition: all 0.2s;
+}
+.action-btn:active { transform: scale(0.9); }
+
+.action-btn.approve {
+  background: var(--sage-light); color: var(--sage-dark);
+}
+.action-btn.approve:hover { background: var(--sage); color: var(--white); }
+
+.action-btn.reject {
+  background: var(--coral-light); color: var(--coral);
+}
+.action-btn.reject:hover { background: var(--coral); color: var(--white); }
+
+.status-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 100px; display: inline-block; margin-top: 2px;
+}
+.status-tag.admin { background: var(--sky-light); color: var(--sky); }
+.status-tag.approved { background: var(--sage-light); color: var(--sage-dark); }
+
+.empty-state {
+  text-align: center; padding: 30px 20px; color: var(--muted);
+}
+.empty-state-icon { font-size: 36px; margin-bottom: 6px; }
+.empty-state-text { font-size: 14px; }
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--cream-light);
+  padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 1000;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-title">ניהול משתמשות</div>
+    <button class="back-btn" onclick="window.location.href='/app.html'">חזרה למפה</button>
+  </header>
+
+  <!-- Pending Users -->
+  <div class="section">
+    <div class="section-title">
+      ממתינות לאישור
+      <span class="badge" id="pendingBadge" style="display:none">0</span>
+    </div>
+    <div id="pendingList">
+      <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-text">טוען...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approved Users -->
+  <div class="section">
+    <div class="section-title">משתמשות מאושרות</div>
+    <div id="approvedList">
+      <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-text">טוען...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const token = localStorage.getItem('shabbit_token');
+const userData = JSON.parse(localStorage.getItem('shabbit_user') || '{}');
+
+if (!token) window.location.href = '/';
+if (!userData.is_admin) { alert('גישה למנהלות בלבד'); window.location.href = '/app.html'; }
+
+function getHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function loadUsers() {
+  try {
+    const res = await fetch('/api/auth/users', { headers: getHeaders() });
+    if (res.status === 401) { window.location.href = '/'; return; }
+    if (res.status === 403) { alert('גישה למנהלות בלבד'); window.location.href = '/app.html'; return; }
+    const users = await res.json();
+
+    const pending = users.filter(u => !u.approved && u.approved !== 'rejected' && !u.is_admin);
+    const approved = users.filter(u => u.approved === true || u.is_admin);
+
+    renderPending(pending);
+    renderApproved(approved);
+  } catch (err) {
+    console.error('Load users error:', err);
+  }
+}
+
+function renderPending(users) {
+  const el = document.getElementById('pendingList');
+  const badge = document.getElementById('pendingBadge');
+
+  if (users.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✓</div><div class="empty-state-text">אין בקשות ממתינות</div></div>';
+    badge.style.display = 'none';
+    return;
+  }
+
+  badge.textContent = users.length;
+  badge.style.display = '';
+
+  el.innerHTML = users.map(u => `
+    <div class="user-card pending" id="card-${u.phone.replace(/[^0-9]/g,'')}">
+      <div class="user-avatar pending">${(u.name || '?').substring(0, 2)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-phone">${u.phone}</div>
+        <div class="user-date">נרשמה: ${u.created_at}</div>
+      </div>
+      <div class="user-actions">
+        <button class="action-btn approve" onclick="approveUser('${u.phone}')" title="אישור">✓</button>
+        <button class="action-btn reject" onclick="rejectUser('${u.phone}')" title="דחייה">✗</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderApproved(users) {
+  const el = document.getElementById('approvedList');
+
+  if (users.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">אין משתמשות מאושרות</div></div>';
+    return;
+  }
+
+  el.innerHTML = users.map(u => {
+    const avatarClass = u.is_admin ? 'admin' : 'approved';
+    const tag = u.is_admin
+      ? '<span class="status-tag admin">מנהלת</span>'
+      : '<span class="status-tag approved">מאושרת</span>';
+
+    return `
+    <div class="user-card">
+      <div class="user-avatar ${avatarClass}">${(u.name || '?').substring(0, 2)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name} ${tag}</div>
+        <div class="user-phone">${u.phone}</div>
+      </div>
+    </div>
+  `;}).join('');
+}
+
+async function approveUser(phone) {
+  try {
+    const res = await fetch(`/api/auth/approve/${encodeURIComponent(phone)}`, {
+      method: 'PATCH', headers: getHeaders()
+    });
+    if (res.ok) {
+      showToast('המשתמשת אושרה ✓');
+      loadUsers();
+    } else {
+      const err = await res.json();
+      alert(err.error);
+    }
+  } catch (err) {
+    console.error('Approve error:', err);
+  }
+}
+
+async function rejectUser(phone) {
+  if (!confirm('בטוחה שרוצה לדחות את הבקשה?')) return;
+  try {
+    const res = await fetch(`/api/auth/reject/${encodeURIComponent(phone)}`, {
+      method: 'DELETE', headers: getHeaders()
+    });
+    if (res.ok) {
+      showToast('הבקשה נדחתה');
+      loadUsers();
+    } else {
+      const err = await res.json();
+      alert(err.error);
+    }
+  } catch (err) {
+    console.error('Reject error:', err);
+  }
+}
+
+loadUsers();
+</script>
+</body>
+</html>
