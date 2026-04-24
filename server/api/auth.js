@@ -132,6 +132,31 @@ router.delete('/reject/:phone', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// PATCH /api/auth/settings/code - change access code (admin only)
+router.patch('/settings/code', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code || code.length < 4) {
+      return res.status(400).json({ error: 'קוד חייב להיות לפחות 4 תווים' });
+    }
+    await updateRow('settings', 'key', 'access_code', { value: code });
+    res.json({ message: 'קוד הכניסה עודכן', code });
+  } catch (err) {
+    console.error('Change code error:', err);
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
+// GET /api/auth/settings/code - get current access code (admin only)
+router.get('/settings/code', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const code = await getSetting('access_code');
+    res.json({ code });
+  } catch (err) {
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
 // Middleware to protect routes
 export function requireAuth(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');

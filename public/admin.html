@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>שבית - ניהול משתמשות</title>
+<title>שבית - ניהול</title>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,6 +16,8 @@
   --ink: #2D2A24; --ink-soft: #4A463D; --muted: #8B8578; --white: #FFFFFF;
   --coral: #E96B8B; --coral-light: #FBD2DC;
   --sky: #5BA8D6; --sky-light: #C9E5F5;
+  --sunshine: #F4C14E; --sunshine-light: #FDEDC4;
+  --lavender: #9B7EBD; --lavender-light: #E2D5F0;
   --mint: #4FC3A1;
   --shadow-soft: 0 2px 12px rgba(45, 42, 36, 0.06);
 }
@@ -28,7 +30,7 @@ body {
 
 .app {
   max-width: 440px; margin: 0 auto; background: var(--cream);
-  min-height: 100vh; position: relative;
+  min-height: 100vh; position: relative; padding-bottom: 20px;
   box-shadow: 0 0 80px rgba(0,0,0,0.1);
 }
 
@@ -53,11 +55,16 @@ body {
 }
 .back-btn:hover { background: var(--cream-dark); }
 
-.section { padding: 20px; }
+.section { padding: 20px 20px 0; }
+.section:last-child { padding-bottom: 20px; }
 .section-title {
   font-family: 'Frank Ruhl Libre', serif;
   font-size: 18px; font-weight: 500; margin-bottom: 14px;
   display: flex; align-items: center; gap: 8px;
+}
+
+.section-divider {
+  height: 1px; background: var(--warm-gray-light); margin: 0 20px;
 }
 
 .badge {
@@ -66,33 +73,33 @@ body {
   border-radius: 100px; font-family: 'Assistant', sans-serif;
 }
 
-.user-card {
+.card {
   background: var(--white); border-radius: 16px; padding: 14px 16px;
   margin-bottom: 10px; box-shadow: var(--shadow-soft);
   border: 1px solid rgba(168, 161, 150, 0.1);
   display: flex; align-items: center; gap: 12px;
 }
 
-.user-card.pending {
-  border-right: 3px solid var(--terracotta);
-}
+.card.pending { border-right: 3px solid var(--terracotta); }
 
-.user-avatar {
+.card-avatar {
   width: 44px; height: 44px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 14px; color: var(--white); flex-shrink: 0;
 }
 
-.user-avatar.pending { background: linear-gradient(135deg, var(--terracotta) 0%, var(--coral) 100%); }
-.user-avatar.approved { background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%); }
-.user-avatar.admin { background: linear-gradient(135deg, var(--sky) 0%, #7AB8DD 100%); }
+.card-avatar.pending { background: linear-gradient(135deg, var(--terracotta) 0%, var(--coral) 100%); }
+.card-avatar.approved { background: linear-gradient(135deg, var(--sage) 0%, var(--mint) 100%); }
+.card-avatar.admin { background: linear-gradient(135deg, var(--sky) 0%, #7AB8DD 100%); }
+.card-avatar.house { background: linear-gradient(135deg, var(--sunshine) 0%, var(--terracotta) 100%); }
+.card-avatar.request { background: linear-gradient(135deg, var(--lavender) 0%, var(--coral) 100%); }
 
-.user-info { flex: 1; min-width: 0; }
-.user-name { font-size: 15px; font-weight: 600; color: var(--ink); }
-.user-phone { font-size: 12px; color: var(--muted); direction: ltr; text-align: right; }
-.user-date { font-size: 11px; color: var(--warm-gray); }
+.card-info { flex: 1; min-width: 0; }
+.card-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.card-sub { font-size: 12px; color: var(--muted); }
+.card-detail { font-size: 11px; color: var(--warm-gray); }
 
-.user-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.card-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
 .action-btn {
   width: 38px; height: 38px; border-radius: 12px; border: none;
@@ -101,31 +108,62 @@ body {
 }
 .action-btn:active { transform: scale(0.9); }
 
-.action-btn.approve {
-  background: var(--sage-light); color: var(--sage-dark);
-}
+.action-btn.approve { background: var(--sage-light); color: var(--sage-dark); }
 .action-btn.approve:hover { background: var(--sage); color: var(--white); }
 
-.action-btn.reject {
-  background: var(--coral-light); color: var(--coral);
-}
+.action-btn.reject { background: var(--coral-light); color: var(--coral); }
 .action-btn.reject:hover { background: var(--coral); color: var(--white); }
 
 .status-tag {
   font-size: 10px; font-weight: 700; padding: 2px 8px;
-  border-radius: 100px; display: inline-block; margin-top: 2px;
+  border-radius: 100px; display: inline-block;
 }
 .status-tag.admin { background: var(--sky-light); color: var(--sky); }
 .status-tag.approved { background: var(--sage-light); color: var(--sage-dark); }
+.status-tag.pending { background: var(--sunshine-light); color: #8A5F10; }
+.status-tag.available { background: var(--sage-light); color: var(--sage-dark); }
+.status-tag.unavailable { background: var(--warm-gray-light); color: var(--ink-soft); }
+.status-tag.request-approved { background: var(--sage-light); color: var(--sage-dark); }
+.status-tag.request-rejected { background: var(--coral-light); color: var(--coral); }
 
 .empty-state {
-  text-align: center; padding: 30px 20px; color: var(--muted);
+  text-align: center; padding: 24px 20px; color: var(--muted);
 }
-.empty-state-icon { font-size: 36px; margin-bottom: 6px; }
-.empty-state-text { font-size: 14px; }
+.empty-state-icon { font-size: 32px; margin-bottom: 4px; }
+.empty-state-text { font-size: 13px; }
+
+/* Settings card */
+.settings-card {
+  background: var(--white); border-radius: 16px; padding: 16px;
+  box-shadow: var(--shadow-soft); border: 1px solid rgba(168, 161, 150, 0.1);
+}
+
+.settings-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.settings-row:last-child { margin-bottom: 0; }
+
+.settings-label { font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+.settings-input {
+  flex: 1; padding: 10px 14px; border-radius: 12px;
+  border: 1.5px solid var(--warm-gray-light); font-family: inherit;
+  font-size: 15px; color: var(--ink); background: var(--cream-light);
+  outline: none; direction: ltr; text-align: right;
+}
+.settings-input:focus { border-color: var(--sage); }
+
+.settings-btn {
+  padding: 10px 18px; border-radius: 12px; border: none;
+  background: var(--ink); color: var(--cream-light);
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.settings-btn:hover { background: var(--ink-soft); }
+.settings-btn:active { transform: scale(0.97); }
 
 .toast {
-  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
   background: var(--ink); color: var(--cream-light);
   padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600;
   box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 1000;
@@ -138,7 +176,7 @@ body {
 
 <div class="app">
   <header class="header">
-    <div class="header-title">ניהול משתמשות</div>
+    <div class="header-title">ניהול שבית</div>
     <button class="back-btn" onclick="window.location.href='/app.html'">חזרה למפה</button>
   </header>
 
@@ -148,21 +186,43 @@ body {
       ממתינות לאישור
       <span class="badge" id="pendingBadge" style="display:none">0</span>
     </div>
-    <div id="pendingList">
-      <div class="empty-state">
-        <div class="empty-state-icon">⏳</div>
-        <div class="empty-state-text">טוען...</div>
-      </div>
-    </div>
+    <div id="pendingList"></div>
   </div>
+
+  <div class="section-divider"></div>
 
   <!-- Approved Users -->
   <div class="section">
     <div class="section-title">משתמשות מאושרות</div>
-    <div id="approvedList">
-      <div class="empty-state">
-        <div class="empty-state-icon">⏳</div>
-        <div class="empty-state-text">טוען...</div>
+    <div id="approvedList"></div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Houses -->
+  <div class="section">
+    <div class="section-title">בתים</div>
+    <div id="housesList"></div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Requests -->
+  <div class="section">
+    <div class="section-title">בקשות אירוח</div>
+    <div id="requestsList"></div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Settings -->
+  <div class="section">
+    <div class="section-title">הגדרות</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <span class="settings-label">קוד כניסה:</span>
+        <input type="text" class="settings-input" id="accessCodeInput" placeholder="טוען...">
+        <button class="settings-btn" onclick="changeCode()">שמור</button>
       </div>
     </div>
   </div>
@@ -188,6 +248,12 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ==================== Load All Data ====================
+async function loadAll() {
+  await Promise.all([loadUsers(), loadHouses(), loadRequests(), loadCode()]);
+}
+
+// ==================== Users ====================
 async function loadUsers() {
   try {
     const res = await fetch('/api/auth/users', { headers: getHeaders() });
@@ -219,14 +285,14 @@ function renderPending(users) {
   badge.style.display = '';
 
   el.innerHTML = users.map(u => `
-    <div class="user-card pending" id="card-${u.phone.replace(/[^0-9]/g,'')}">
-      <div class="user-avatar pending">${(u.name || '?').substring(0, 2)}</div>
-      <div class="user-info">
-        <div class="user-name">${u.name}</div>
-        <div class="user-phone">${u.phone}</div>
-        <div class="user-date">נרשמה: ${u.created_at}</div>
+    <div class="card pending">
+      <div class="card-avatar pending">${(u.name || '?').substring(0, 2)}</div>
+      <div class="card-info">
+        <div class="card-name">${u.name}</div>
+        <div class="card-sub">${u.phone}</div>
+        <div class="card-detail">נרשמה: ${u.created_at}</div>
       </div>
-      <div class="user-actions">
+      <div class="card-actions">
         <button class="action-btn approve" onclick="approveUser('${u.phone}')" title="אישור">✓</button>
         <button class="action-btn reject" onclick="rejectUser('${u.phone}')" title="דחייה">✗</button>
       </div>
@@ -238,7 +304,7 @@ function renderApproved(users) {
   const el = document.getElementById('approvedList');
 
   if (users.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">אין משתמשות מאושרות</div></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">אין משתמשות</div></div>';
     return;
   }
 
@@ -247,14 +313,17 @@ function renderApproved(users) {
     const tag = u.is_admin
       ? '<span class="status-tag admin">מנהלת</span>'
       : '<span class="status-tag approved">מאושרת</span>';
+    const removeBtn = u.is_admin ? '' :
+      `<div class="card-actions"><button class="action-btn reject" onclick="removeUser('${u.phone}')" title="הסרה">✗</button></div>`;
 
     return `
-    <div class="user-card">
-      <div class="user-avatar ${avatarClass}">${(u.name || '?').substring(0, 2)}</div>
-      <div class="user-info">
-        <div class="user-name">${u.name} ${tag}</div>
-        <div class="user-phone">${u.phone}</div>
+    <div class="card">
+      <div class="card-avatar ${avatarClass}">${(u.name || '?').substring(0, 2)}</div>
+      <div class="card-info">
+        <div class="card-name">${u.name} ${tag}</div>
+        <div class="card-sub">${u.phone}</div>
       </div>
+      ${removeBtn}
     </div>
   `;}).join('');
 }
@@ -264,16 +333,9 @@ async function approveUser(phone) {
     const res = await fetch(`/api/auth/approve/${encodeURIComponent(phone)}`, {
       method: 'PATCH', headers: getHeaders()
     });
-    if (res.ok) {
-      showToast('המשתמשת אושרה ✓');
-      loadUsers();
-    } else {
-      const err = await res.json();
-      alert(err.error);
-    }
-  } catch (err) {
-    console.error('Approve error:', err);
-  }
+    if (res.ok) { showToast('המשתמשת אושרה ✓'); loadUsers(); }
+    else { const err = await res.json(); alert(err.error); }
+  } catch (err) { console.error('Approve error:', err); }
 }
 
 async function rejectUser(phone) {
@@ -282,19 +344,121 @@ async function rejectUser(phone) {
     const res = await fetch(`/api/auth/reject/${encodeURIComponent(phone)}`, {
       method: 'DELETE', headers: getHeaders()
     });
-    if (res.ok) {
-      showToast('הבקשה נדחתה');
-      loadUsers();
-    } else {
-      const err = await res.json();
-      alert(err.error);
-    }
-  } catch (err) {
-    console.error('Reject error:', err);
-  }
+    if (res.ok) { showToast('הבקשה נדחתה'); loadUsers(); }
+    else { const err = await res.json(); alert(err.error); }
+  } catch (err) { console.error('Reject error:', err); }
 }
 
-loadUsers();
+async function removeUser(phone) {
+  if (!confirm('בטוחה שרוצה להסיר את המשתמשת? היא תצטרך לבקש אישור מחדש.')) return;
+  try {
+    const res = await fetch(`/api/auth/reject/${encodeURIComponent(phone)}`, {
+      method: 'DELETE', headers: getHeaders()
+    });
+    if (res.ok) { showToast('המשתמשת הוסרה'); loadUsers(); }
+    else { const err = await res.json(); alert(err.error); }
+  } catch (err) { console.error('Remove error:', err); }
+}
+
+// ==================== Houses ====================
+async function loadHouses() {
+  try {
+    const res = await fetch('/api/houses', { headers: getHeaders() });
+    const houses = await res.json();
+    renderHouses(houses);
+  } catch (err) { console.error('Load houses error:', err); }
+}
+
+function renderHouses(houses) {
+  const el = document.getElementById('housesList');
+
+  if (houses.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏠</div><div class="empty-state-text">אין בתים</div></div>';
+    return;
+  }
+
+  el.innerHTML = houses.map(h => {
+    const statusTag = h.is_available
+      ? '<span class="status-tag available">פנוי</span>'
+      : '<span class="status-tag unavailable">סגור</span>';
+
+    return `
+    <div class="card">
+      <div class="card-avatar house">🏠</div>
+      <div class="card-info">
+        <div class="card-name">${h.name} ${statusTag}</div>
+        <div class="card-sub">בעלים: ${h.owner_name} · ${h.city}</div>
+        <div class="card-detail">${h.bedrooms} חדרים · ${h.beds} מיטות · עד ${h.max_kids} ילדים</div>
+      </div>
+    </div>
+  `;}).join('');
+}
+
+// ==================== Requests ====================
+async function loadRequests() {
+  try {
+    const res = await fetch('/api/requests', { headers: getHeaders() });
+    const data = await res.json();
+    renderRequests(data);
+  } catch (err) { console.error('Load requests error:', err); }
+}
+
+function renderRequests(data) {
+  const el = document.getElementById('requestsList');
+  const all = [...(data.sent || []), ...(data.received || [])];
+
+  if (all.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">אין בקשות עדיין</div></div>';
+    return;
+  }
+
+  el.innerHTML = all.map(r => {
+    let statusTag;
+    if (r.status === 'approved') statusTag = '<span class="status-tag request-approved">אושר</span>';
+    else if (r.status === 'rejected') statusTag = '<span class="status-tag request-rejected">נדחה</span>';
+    else statusTag = '<span class="status-tag pending">ממתין</span>';
+
+    const direction = r.type === 'sent' ? 'שלחתי בקשה' : 'קיבלתי בקשה';
+
+    return `
+    <div class="card">
+      <div class="card-avatar request">📨</div>
+      <div class="card-info">
+        <div class="card-name">${r.house_name} ${statusTag}</div>
+        <div class="card-sub">${direction} · טלפון: ${r.guest_phone}</div>
+        <div class="card-detail">${r.created_at}</div>
+      </div>
+    </div>
+  `;}).join('');
+}
+
+// ==================== Settings ====================
+async function loadCode() {
+  try {
+    const res = await fetch('/api/auth/settings/code', { headers: getHeaders() });
+    const data = await res.json();
+    document.getElementById('accessCodeInput').value = data.code || '';
+  } catch (err) { console.error('Load code error:', err); }
+}
+
+async function changeCode() {
+  const code = document.getElementById('accessCodeInput').value.trim();
+  if (!code || code.length < 4) {
+    alert('קוד חייב להיות לפחות 4 תווים');
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/settings/code', {
+      method: 'PATCH', headers: getHeaders(),
+      body: JSON.stringify({ code })
+    });
+    if (res.ok) { showToast('קוד הכניסה עודכן ✓'); }
+    else { const err = await res.json(); alert(err.error); }
+  } catch (err) { console.error('Change code error:', err); }
+}
+
+// ==================== Start ====================
+loadAll();
 </script>
 </body>
 </html>
